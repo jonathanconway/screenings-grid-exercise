@@ -6,50 +6,61 @@ import { Sorts, Filter, Sort } from "../querying/querying.types";
 import { sortDataObjects, filterDataObjects } from "../querying/querying.helpers";
 import { exclude } from "../utils";
 
+// Action types
+
+const LOAD_SCREENINGS =         "LOAD_SCREENINGS";
+const LOAD_SCREENINGS_SUCCESS = "LOAD_SCREENINGS_SUCCESS";
+const LOAD_SCREENINGS_FAILURE = "LOAD_SCREENINGS_FAILURE";
+const SET_FILTERS =             "SET_FILTERS";
+const SET_SORTS =               "SET_SORTS";
+
+// Actions
+
 export interface LoadScreeningsAction {
-  readonly type: "LOAD_SCREENINGS";
+  readonly type: typeof LOAD_SCREENINGS;
 }
+
+export interface LoadScreeningsSuccessAction {
+  readonly type: typeof LOAD_SCREENINGS_SUCCESS;
+  readonly screenings: readonly Screening[];
+}
+
+export interface LoadScreeningsFailureAction {
+  readonly type: typeof LOAD_SCREENINGS_FAILURE;
+}
+
+export interface SetFiltersAction {
+  readonly type: typeof SET_FILTERS;
+  readonly filters: readonly Filter<Screening>[];
+}
+
+export interface SetSortsAction {
+  readonly type: typeof SET_SORTS;
+  readonly sorts: Sorts<Screening>;
+}
+
+// Action creators
 
 export const loadScreenings = () =>
   (dispatch: Dispatch<Action>) => {
-    dispatch({ type: "LOAD_SCREENINGS" });
+    dispatch({ type: LOAD_SCREENINGS });
     return getScreenings()
       .then((screenings) => dispatch(loadScreeningsSuccess(screenings) as Action))
       .catch(() => dispatch(loadScreeningsFailure() as Action));
   };
 
-
-export interface LoadScreeningsSuccessAction {
-  readonly type: "LOAD_SCREENINGS_SUCCESS";
-  readonly screenings: readonly Screening[];
-}
-
 export const loadScreeningsSuccess = (screenings: readonly Screening[]) =>
   ({ type: "LOAD_SCREENINGS_SUCCESS", screenings });
 
-
-export interface LoadScreeningsFailureAction {
-  readonly type: "LOAD_SCREENINGS_FAILURE";
-}
 
 export const loadScreeningsFailure = () =>
   ({ type: "LOAD_SCREENINGS_FAILURE" });
 
 
-export interface SetFiltersAction {
-  readonly type: "SET_FILTERS";
-  readonly filters: readonly Filter<Screening>[];
-}
-
 export const setFilters =
   (filters: readonly Filter<Screening>[]) =>
     ({ type: "SET_FILTERS", filters });
 
-
-export interface SetSortsAction {
-  readonly type: "SET_SORTS";
-  readonly sorts: Sorts<Screening>;
-}
 
 export const setSorts =
   (sorts: Sorts<Screening>) =>
@@ -79,6 +90,16 @@ export const toggleSort = (columnKey: keyof Screening, sorts: Sorts<Screening>) 
   }
 };
 
+// Action type
+
+type Action
+  = LoadScreeningsAction
+  | LoadScreeningsSuccessAction
+  | LoadScreeningsFailureAction
+  | SetFiltersAction
+  | SetSortsAction;
+
+// State
 
 export interface State {
   readonly isLoading: boolean;
@@ -86,6 +107,8 @@ export interface State {
   readonly filters: readonly Filter<Screening>[];
   readonly sorts: Sorts<Screening>;
 }
+
+// Default initial state
 
 const initialState = {
   isLoading: true,
@@ -102,41 +125,36 @@ const initialState = {
   sorts: {}
 };
 
-type Action
-  = LoadScreeningsAction
-  | LoadScreeningsSuccessAction
-  | LoadScreeningsFailureAction
-  | SetFiltersAction
-  | SetSortsAction;
+// Reducer
 
 export const reducer = (state: State = initialState, action: Action) => {
   switch (action.type) {
-    case "LOAD_SCREENINGS":
+    case LOAD_SCREENINGS:
       return {
         ...state,
         isLoading: true
       };
 
-    case "LOAD_SCREENINGS_SUCCESS":
+    case LOAD_SCREENINGS_SUCCESS:
       return {
         ...state,
         isLoading: false,
         screenings: action.screenings
       };
   
-    case "LOAD_SCREENINGS_FAILURE":
+    case LOAD_SCREENINGS_FAILURE:
       return {
         ...state,
         isLoading: false
       };
 
-    case "SET_SORTS":
+    case SET_SORTS:
       return {
         ...state,
         sorts: action.sorts
       };
 
-    case "SET_FILTERS":
+    case SET_FILTERS:
       return {
         ...state,
         filters: action.filters
@@ -144,6 +162,8 @@ export const reducer = (state: State = initialState, action: Action) => {
   }
   return state;
 };
+
+// Selectors
 
 export const selectSortedScreenings = (state: State): State => {
   const sorts = Object.values(state.sorts).filter((x): x is Sort<Screening> => !!x),
