@@ -2,6 +2,8 @@
 
 In this exercise, screenings data is presented in a multi-grid, along with sorting and filtering controls.
 
+![Screenshot of the Screenings Grid](/docs/screenings-grid-exercise-screenshot.jpg?raw=true "Screenshot of the Screenings Grid")
+
 ## Getting started
 
 ### Installation
