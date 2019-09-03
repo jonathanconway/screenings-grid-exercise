@@ -1,26 +1,23 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { ThemeProvider } from "styled-components";
 
-const App: React.FC = () => {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+import logo from "./assets/logo.svg";
+import { Container, Header, Title, Main, Logo, GlobalStyle } from "./App.styles";
+import { Screenings } from "./screenings/Screenings";
+import { theme } from "./theme";
 
-export default App;
+export const App = () => (
+  <ThemeProvider theme={theme}>
+    <>
+      <GlobalStyle />
+      <Container>
+        <Header>
+          <Title><Logo src={logo} alt="Pole Star Logo" /></Title>
+        </Header>
+        <Main>
+          <Screenings />
+        </Main>
+      </Container>
+    </>
+  </ThemeProvider>
+);

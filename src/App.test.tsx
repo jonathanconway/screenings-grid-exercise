@@ -1,9 +1,12 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import App from './App';
+import React from "react";
+import { mount } from "enzyme";
 
-it('renders without crashing', () => {
-  const div = document.createElement('div');
-  ReactDOM.render(<App />, div);
-  ReactDOM.unmountComponentAtNode(div);
+import { App } from "./App";
+import { withStore } from "./testUtils";
+import { reducer } from "./screenings/Screenings.redux";
+
+describe("<App />", () => {
+  it("can render", () => {
+    mount(withStore(reducer, <App />));
+  });
 });
