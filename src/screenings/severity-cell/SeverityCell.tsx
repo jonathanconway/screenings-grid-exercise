@@ -40,7 +40,7 @@ export const Severity = (props: SeverityProps) => (
         title={severityDescriptions[props.severity]}
         onClick={props.onClick}
         color={severityColors[props.severity]}>
-        {props.severity}
+        {props.severity.toString()}
       </IconButton>
     : <></>
 );
