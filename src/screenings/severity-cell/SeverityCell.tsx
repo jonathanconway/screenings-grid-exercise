@@ -9,14 +9,6 @@ interface SeverityProps {
   readonly onClick?: () => void;
 }
 
-const severityLabels: { [key: string]: string } = {
-  "70-WARNING":               "W️",
-  "60-OK":                    "OK",
-  "80-CRITICAL_ACKNOWLEDGED": "CR",
-  "30-UNKNOWN":               "？",
-  "90-CRITICAL":              "🚨"
-};
-
 const severityIcons: { [key: string]: Icon } = {
   "70-WARNING":               "warning",
   "60-OK":                    "ok",
@@ -48,7 +40,7 @@ export const Severity = (props: SeverityProps) => (
         title={severityDescriptions[props.severity]}
         onClick={props.onClick}
         color={severityColors[props.severity]}>
-        {severityLabels[props.severity]}
+        {props.severity}
       </IconButton>
     : <></>
 );
