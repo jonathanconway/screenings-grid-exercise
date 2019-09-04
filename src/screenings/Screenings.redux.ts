@@ -1,10 +1,10 @@
 import { Dispatch } from "redux";
 
 import { Screening } from "./Screenings.types";
-import { getScreenings } from "./Screenings.http";
+import * as screeningsHttp from "./Screenings.http";
 import { Sorts, Filter, Sort } from "../querying/querying.types";
 import { sortDataObjects, filterDataObjects } from "../querying/querying.helpers";
-import { exclude } from "../utils";
+import { exclude, createBoundlessCacheDeepEqualsSelector } from "../utils";
 
 // Action types
 
@@ -44,7 +44,8 @@ export interface SetSortsAction {
 export const loadScreenings = () =>
   (dispatch: Dispatch<Action>) => {
     dispatch({ type: LOAD_SCREENINGS });
-    return getScreenings()
+    return screeningsHttp
+      .getScreenings()
       .then((screenings) => dispatch(loadScreeningsSuccess(screenings) as Action))
       .catch(() => dispatch(loadScreeningsFailure() as Action));
   };
@@ -165,23 +166,26 @@ export const reducer = (state: State = initialState, action: Action) => {
 
 // Selectors
 
-export const selectSortedScreenings = (state: State): State => {
-  const sorts = Object.values(state.sorts).filter((x): x is Sort<Screening> => !!x),
-        sortedScreenings = sortDataObjects(state.screenings, sorts);
+const selectScreenings = (state: State) =>
+  state.screenings;
 
-  return {
-    ...state,
-    screenings: sortedScreenings
-  };
-};
+const selectFilters = (state: State) =>
+  state.filters;
 
-export const selectFilteredScreenings = (state: State) => ({
-  ...state,
-  screenings: filterDataObjects(state.screenings, state.filters)
-});
+const selectSorts = (state: State) =>
+  Object.values(state.sorts).filter((x): x is Sort<Screening> => !!x);
 
-export const selectSortedFilteredScreenings = (state: State): readonly Screening[] => {
-  return selectSortedScreenings(
-    selectFilteredScreenings(state))
-      .screenings;
-}
+const selectSortedScreenings = (screenings: readonly Screening[], sorts: readonly Sort<Screening>[]) =>
+  sortDataObjects(screenings, sorts);
+
+const selectFilteredScreenings = (screenings: readonly Screening[], filters: readonly Filter<Screening>[]) =>
+  filterDataObjects(screenings, filters);
+
+export const makeSelectSortedFilteredScreenings = () =>
+  createBoundlessCacheDeepEqualsSelector(
+    [selectScreenings, selectFilters, selectSorts],
+    (screenings, filters, sorts) => {
+      const filtered = selectFilteredScreenings(screenings, filters);
+      const sortedAndFiltered = selectSortedScreenings(filtered, sorts);
+      return sortedAndFiltered;
+    });

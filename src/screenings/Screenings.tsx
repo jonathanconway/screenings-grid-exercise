@@ -4,7 +4,7 @@ import { Action } from "redux";
 
 import { Container, Title, Body, FilterGridContainer } from "./Screenings.styles";
 import { Screening, Severity as SeverityType } from "./Screenings.types";
-import { State, setFilters, setSorts, loadScreenings, selectSortedFilteredScreenings } from "./Screenings.redux";
+import { State, setFilters, setSorts, loadScreenings, makeSelectSortedFilteredScreenings } from "./Screenings.redux";
 
 import { Table } from "../components/table/Table";
 import { FilterBuilder } from "../components/filter-builder/FilterBuilder";
@@ -326,12 +326,16 @@ const ScreeningsComponent = (props: ScreeningsProps) => {
 
 };
 
-const mapStateToProps = (state: State) => ({
-  screenings: selectSortedFilteredScreenings(state),
-  isLoading: state.isLoading,
-  filters: state.filters,
-  sorts: state.sorts,
-});
+const makeMapStateToProps = () => {
+  const selectSortedFilteredScreenings = makeSelectSortedFilteredScreenings();
+  const mapStateToProps = (state: State) => ({
+    screenings: selectSortedFilteredScreenings(state),
+    isLoading: state.isLoading,
+    filters: state.filters,
+    sorts: state.sorts
+  });
+  return mapStateToProps;
+};
 
 const mapDispatchToProps = {
   setFilters,
@@ -339,4 +343,4 @@ const mapDispatchToProps = {
   loadScreenings
 };
 
-export const Screenings = connect(mapStateToProps, mapDispatchToProps)(ScreeningsComponent)
+export const Screenings = connect(makeMapStateToProps, mapDispatchToProps)(ScreeningsComponent)
